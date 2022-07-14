@@ -1,0 +1,10 @@
+.searchBar{
+    border: 1px solid #dfdfdf;
+    padding: 20px;
+    background-color: #ffffff;
+}
+.wrapCenter{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

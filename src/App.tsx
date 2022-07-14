@@ -1,9 +1,13 @@
 import './App.css';
-import { Button } from '@mui/material';
+import Layout from './components/layout/Layout';
+import StockGraph from './components/stock/StockGraph';
 
 function App() {
   return (
-    <Button variant="contained">Contained</Button>
+    <Layout>
+      <StockGraph/>
+    </Layout>
+    
   );
 }
 
