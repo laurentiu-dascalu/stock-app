@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { FormControl, FormControlLabel, Grid, Switch, TextField } from "@mui/material";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Button } from "@mui/material";
@@ -7,6 +7,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import classes from "./SearchBar.module.css";
 import moment from 'moment';
+import { StockContext } from '../store/stock-contex';
 
 const SearchBar: React.FC = (props) => {
 
@@ -20,6 +21,7 @@ const SearchBar: React.FC = (props) => {
     const enteredInput = useRef<HTMLInputElement>(null);
     const enteredStartDate = useRef<HTMLInputElement>(null);
     const enteredEndDate = useRef<HTMLInputElement>(null);
+    const enteredIsAverage = useRef<HTMLInputElement>(null);
 
     const [anchorElStart, setAnchorElStart] = useState<HTMLInputElement | null>();
     React.useEffect(() => { 
@@ -37,11 +39,14 @@ const SearchBar: React.FC = (props) => {
     const [endDate, setEndDate] = useState<Date | null>(endDateConst);
     const [startDate, setStartDate] = useState<Date | number | null>(startDateConst);
 
+    const stockCtx = useContext(StockContext);
+
     const submitHandler = (event: React.FormEvent) =>{
         event.preventDefault();
         
         const enteredText = enteredInput.current!.value;
         if(enteredText=== undefined || enteredText.trim().length === 0){
+            stockCtx.delItems();
             return;
         }
         
@@ -57,25 +62,32 @@ const SearchBar: React.FC = (props) => {
         }
         const endDateISO = moment(enteredEndDateText, 'DD/MM/YYYY').unix();
 
+        var enteredIsAverageVal = enteredIsAverage.current!.checked;
+        console.log(enteredIsAverageVal);
+        stockCtx.setIsAverage(enteredIsAverageVal);
+
         finnhubClient.symbolSearch(enteredText, (error: any, data: any, response: any) => {
             if(data.count == 0){
+                stockCtx.delItems();
                 return;
             }
             var goodStock = data.result.find(function (element: any) {
                 return element.type == 'Common Stock';
             });
 
-            if(goodStock == undefined){
+            if(goodStock == undefined){  
+                stockCtx.delItems();
                 return;
             }
             var symbol = goodStock.symbol;
+            stockCtx.setStockName(goodStock.description+' - '+symbol);
 
             finnhubClient.stockCandles(symbol, "D", startDateISO, endDateISO, (error: any, data: any, response: any) => {
-                if(data === null || data === undefined || data.s!= 'ok'){
+                if(data === null || data === undefined || data.s!= 'ok'){ 
+                    stockCtx.delItems();
                     return;
                 }
-                
-                //props.onSearch(data);
+                stockCtx.setItems(data);
             });
         });
 
@@ -98,7 +110,7 @@ const SearchBar: React.FC = (props) => {
             </FormControl>
         </Grid>
         <Grid className={classes.wrapCenter} item xs={6} md={2} lg={1} order={{xs:4, md:2, lg:4 }}>
-            <FormControlLabel control={<Switch />} label="Average" />
+            <FormControlLabel control={<Switch inputRef={enteredIsAverage} />} label="Average" />
         </Grid>
         <Grid item xs={6} md={5} lg={3} order={{xs:2, md:3, lg:2 }}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
