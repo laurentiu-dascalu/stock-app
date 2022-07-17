@@ -12,11 +12,13 @@ const StockGraph: React.FC<{testData?: Stock }> = (props) => {
 
   var dataStock: { x: Date; y: number[]; }[] = [];
   
+  //If TestData is defined, then set the chart data with testData
   var itemsStockData =  stockCtx.items;
   if(props.testData !== undefined){
     itemsStockData =  props.testData;
   }
 
+  //Change stock values to graph strucure
   itemsStockData.t.forEach((element, index) => {
     var newStock = {
       x: new Date(element*1000),
@@ -31,6 +33,7 @@ const StockGraph: React.FC<{testData?: Stock }> = (props) => {
     dataStock.push(newStock);
   });
 
+  //Show/Hide Average line on graph
   React.useEffect(() => { 
     let c:string = '0';
     if(stockCtx.isAverage){
@@ -39,6 +42,7 @@ const StockGraph: React.FC<{testData?: Stock }> = (props) => {
     setCalcAverage(c);
   },  [stockCtx])
   
+  //Chart config
   var cartObj = {
           
     series: [{

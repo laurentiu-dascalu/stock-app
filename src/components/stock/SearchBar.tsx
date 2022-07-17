@@ -17,12 +17,13 @@ const SearchBar: React.FC = (props) => {
     //api_key.apiKey = "sandbox_cb8pjnaad3i0v9a1tc4g";
     api_key.apiKey = "cb8pjnaad3i0v9a1tc40";
     const finnhubClient = new finnhub.DefaultApi();
-
+    
     const enteredInput = useRef<HTMLInputElement>(null);
     const enteredStartDate = useRef<HTMLInputElement>(null);
     const enteredEndDate = useRef<HTMLInputElement>(null);
     const enteredIsAverage = useRef<HTMLInputElement>(null);
 
+    //FIX for MUI datepicker
     const [anchorElStart, setAnchorElStart] = useState<HTMLInputElement | null>();
     React.useEffect(() => { 
         setTimeout(() => setAnchorElStart(enteredStartDate.current), 1) 
@@ -44,29 +45,33 @@ const SearchBar: React.FC = (props) => {
     const submitHandler = (event: React.FormEvent) =>{
         event.preventDefault();
         
+        //Check if search input is empty
         const enteredText = enteredInput.current!.value;
         if(enteredText=== undefined || enteredText.trim().length === 0){
             stockCtx.delItems();
             return;
         }
         
+        //If start date is empty, then select default value
         var enteredStartDateText = enteredStartDate.current!.value;
         if(enteredStartDateText=== undefined || enteredStartDateText.trim().length === 0){
             enteredStartDateText = moment(startDateConst).format('DD/MM/YYYY');
         }
         const startDateISO = moment(enteredStartDateText, 'DD/MM/YYYY').unix();
         
+        //If end date is empty, then select default value
         var enteredEndDateText = enteredEndDate.current!.value;
         if(enteredEndDateText=== undefined || enteredEndDateText.trim().length === 0){
             enteredEndDateText = moment(endDateConst).format('DD/MM/YYYY');
         }
         const endDateISO = moment(enteredEndDateText, 'DD/MM/YYYY').unix();
 
+        //Update Average Switch
         var enteredIsAverageVal = enteredIsAverage.current!.checked;
-        console.log(enteredIsAverageVal);
         stockCtx.setIsAverage(enteredIsAverageVal);
 
         finnhubClient.symbolSearch(enteredText, (error: any, data: any, response: any) => {
+            //Check if results are ok
             if(data.count == 0){
                 stockCtx.delItems();
                 return;
@@ -79,10 +84,13 @@ const SearchBar: React.FC = (props) => {
                 stockCtx.delItems();
                 return;
             }
+
+            //Update Company Stock name
             var symbol = goodStock.symbol;
             stockCtx.setStockName(goodStock.description+' - '+symbol);
 
             finnhubClient.stockCandles(symbol, "D", startDateISO, endDateISO, (error: any, data: any, response: any) => {
+                //If graph data is ok, then update to stockContext
                 if(data === null || data === undefined || data.s!= 'ok'){ 
                     stockCtx.delItems();
                     return;

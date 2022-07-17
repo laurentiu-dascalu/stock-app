@@ -8,11 +8,13 @@ import { StockContext } from './components/store/stock-contex';
 function App() {
   const stockCtx = useContext(StockContext);
 
+  //Check if there are any items in stockContext
   var isOk = false;
   if(stockCtx.items.s=='ok'){
     isOk = true;
   }
 
+  //If there are no items in stockContext, then an alert message is displayed
   return (
     <Layout>
       {!isOk && <Alert severity="error">No stock data.</Alert>}
