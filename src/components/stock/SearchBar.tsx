@@ -100,7 +100,7 @@ const SearchBar: React.FC = (props) => {
             <FormControl fullWidth>
                 <TextField
                 label="Stock name or code"
-                id="outlined-start-adornment"
+                id="stockName"
                 className={classes.searchInput}
                 inputRef={enteredInput}
                 InputProps={{
@@ -121,6 +121,7 @@ const SearchBar: React.FC = (props) => {
                     renderInput={(params) => 
                         <TextField 
                         {...params} 
+                        id="fromDate"
                         className={classes.searchInput} 
                         inputRef={enteredStartDate} 
                         />
@@ -145,6 +146,7 @@ const SearchBar: React.FC = (props) => {
                     renderInput={(params) => 
                         <TextField 
                         {...params} 
+                        id="toDate"
                         className={classes.searchInput} 
                         inputRef={enteredEndDate} 
                         />
@@ -161,7 +163,7 @@ const SearchBar: React.FC = (props) => {
             </LocalizationProvider>
         </Grid>
         <Grid className={classes.wrapCenter} item xs={6} md={2} lg={1} order={{xs:5, md:5, lg:5 }}>
-            <Button type="submit" variant="contained">Search</Button>
+            <Button id="searchButton" type="submit" variant="contained">Search</Button>
         </Grid>
     </Grid>
     </form>

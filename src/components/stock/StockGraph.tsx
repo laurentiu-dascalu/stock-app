@@ -3,21 +3,28 @@ import { StockContext } from '../store/stock-contex';
 import { Card } from '@mui/material';
 import ReactApexChart from 'react-apexcharts';
 import moment from 'moment';
-import classes from "./SearchGraph.module.css";
+import classes from "./StockGraph.module.css";
+import Stock from '../models/stock';
 
-const StockGraph: React.FC = (props) => {
+const StockGraph: React.FC<{testData?: Stock }> = (props) => {
   const stockCtx = useContext(StockContext);
   const [calcAverage, setCalcAverage] = useState<string>('0');
 
   var dataStock: { x: Date; y: number[]; }[] = [];
-  stockCtx.items.t.forEach((element, index) => {
+  
+  var itemsStockData =  stockCtx.items;
+  if(props.testData !== undefined){
+    itemsStockData =  props.testData;
+  }
+
+  itemsStockData.t.forEach((element, index) => {
     var newStock = {
       x: new Date(element*1000),
       y: [
-        stockCtx.items.o[index],
-        stockCtx.items.h[index],
-        stockCtx.items.l[index],
-        stockCtx.items.c[index]
+        itemsStockData.o[index],
+        itemsStockData.h[index],
+        itemsStockData.l[index],
+        itemsStockData.c[index]
       ]
     };
 
@@ -27,7 +34,7 @@ const StockGraph: React.FC = (props) => {
   React.useEffect(() => { 
     let c:string = '0';
     if(stockCtx.isAverage){
-      c = Number(stockCtx.items.c.reduce((a, b) => a + b, 0) / stockCtx.items.c.length).toFixed(2);
+      c = Number(itemsStockData.c.reduce((a, b) => a + b, 0) / itemsStockData.c.length).toFixed(2);
     }
     setCalcAverage(c);
   },  [stockCtx])
